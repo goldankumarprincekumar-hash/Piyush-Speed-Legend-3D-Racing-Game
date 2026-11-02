@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Piyush Racing Game</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#101820;color:white;font-family:Arial,sans-serif;text-align:center}
+h2{margin:10px 0}.hud{display:flex;justify-content:space-around;padding:8px;font-size:18px}
+#game{display:block;margin:auto;background:#444;max-width:100vw;max-height:65vh;border:3px solid white;touch-action:none}
+.controls{display:flex;justify-content:center;gap:28px;margin:12px}button{font-size:24px;padding:12px 25px;border:0;border-radius:12px;background:#ffca28;font-weight:bold}
+#start{font-size:18px;background:#4caf50;color:white}p{margin:6px}
+</style>
+</head>
+<body>
+<h2>🏁 PIYUSH RACING GAME 🏎️</h2>
+<div class="hud"><span>Score: <b id="score">0</b></span><span>Coins: <b id="coins">0</b></span></div>
+<canvas id="game" width="360" height="540"></canvas>
+<p id="msg">Press START to race!</p>
+<button id="start">START GAME</button>
+<div class="controls"><button id="left">⬅️</button><button id="right">➡️</button></div>
+<p>Avoid traffic and collect coins!</p>
+<script>
+const c=document.getElementById('game'),x=c.getContext('2d');let carX=160, traffic=[],coin=null,score=0,coins=0,running=false,frame=0,left=false,right=false;
+function reset(){carX=160;traffic=[];coin=null;score=0;coins=0;frame=0;running=true;document.getElementById('msg').textContent='Drive carefully!';document.getElementById('score').textContent=0;document.getElementById('coins').textContent=0;requestAnimationFrame(loop)}
+function car(px,py,color){x.fillStyle=color;x.fillRect(px,py,38,62);x.fillStyle='#cfefff';x.fillRect(px+6,py+8,26,15);x.fillStyle='#111';x.fillRect(px-4,py+8,5,16);x.fillRect(px+37,py+8,5,16);x.fillRect(px-4,py+40,5,16);x.fillRect(px+37,py+40,5,16)}
+function draw(){x.fillStyle='#287a38';x.fillRect(0,0,360,540);x.fillStyle='#555';x.fillRect(40,0,280,540);x.fillStyle='#fff';for(let y=-20;y<560;y+=80)x.fillRect(176,y,8,42);x.fillStyle='#e53935';x.fillRect(48,0,4,540);x.fillRect(308,0,4,540);car(carX,440,'#2196f3');traffic.forEach(t=>car(t.x,t.y,'#ef5350'));if(coin){x.fillStyle='#ffd600';x.beginPath();x.arc(coin.x,coin.y,11,0,Math.PI*2);x.fill();x.fillStyle='#8a6500';x.font='bold 13px Arial';x.fillText('$',coin.x-4,coin.y+5)}}
+function loop(){if(!running)return;frame++;score++;if(frame%65===0)traffic.push({x:65+Math.floor(Math.random()*4)*58,y:-70});if(frame%115===0&&!coin)coin={x:75+Math.random()*210,y:-10};traffic.forEach(t=>t.y+=4);traffic=traffic.filter(t=>t.y<570);if(coin){coin.y+=3;if(coin.y>430&&coin.y<505&&Math.abs(coin.x-(carX+19))<32){coins++;coin=null;document.getElementById('coins').textContent=coins} else if(coin.y>560)coin=null}if(left)carX-=5;if(right)carX+=5;carX=Math.max(48,Math.min(274,carX));for(const t of traffic){if(t.y+58>440&&t.y<500&&Math.abs(t.x-carX)<35){running=false;document.getElementById('msg').textContent='Game over! Score: '+score+' — press START to play again.';break}}document.getElementById('score').textContent=score;draw();if(running)requestAnimationFrame(loop)}
+function hold(id,which){let b=document.getElementById(id);b.addEventListener('pointerdown',e=>{e.preventDefault();window[which]=true});['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,()=>window[which]=false))}
+hold('left','left');hold('right','right');document.getElementById('start').onclick=reset;draw();
+</script></body></html>
